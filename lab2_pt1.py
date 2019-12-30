@@ -93,9 +93,9 @@ final_score = gmm_hmm.score(X_test, y_test)
 
 print(
     f'My model brings all the boys to the yard\n'
-    f'and damn right, it\'s better that yours:\n'
+    f'and damn right, it\'s better than yours:\n'
     f'Score: {final_score}\n'
-    f'damn right, it\'s better that yours\n'
+    f'damn right, it\'s better than yours\n'
     f'Score: {final_score}'
 )
 
