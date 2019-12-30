@@ -105,3 +105,4 @@ def confusion_matrix(self, y_test, y_pred):
     for t, p in y_test, y_pred:
         cf[t][p] += 1
 
+    return cf
