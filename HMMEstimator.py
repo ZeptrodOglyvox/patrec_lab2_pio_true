@@ -2,7 +2,7 @@ from pomegranate import *
 import numpy as np
 
 # Dearest Panika,
-# Read Digit Model and then HMMEstimator, most of it is copied for their hmm.py script
+# Read Digit Model and then HMMEstimator, most of it is copied from their hmm.py script
 
 
 # This class trains an HMM model for one digit label, 10 of these will be made
