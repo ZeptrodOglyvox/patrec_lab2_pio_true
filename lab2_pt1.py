@@ -1,8 +1,5 @@
-import sys
-
 import numpy as np
 from pr_lab2_2019_20_help_scripts.lab2_help.parser import parser
-from pr_lab2_2019_20_help_scripts.lab2_help.plot_confusion_matrix import plot_confusion_matrix
 from HMMEstimator import HMMEstimator
 import os
 from sklearn.model_selection import StratifiedShuffleSplit
@@ -14,7 +11,6 @@ start_time = time.time()
 
 read = False  # Change to re-read data
 data_dir = os.path.join(os.getcwd(), 'fsdd-recordings')
-
 # If this folder doesn't exist you might get an error, create it manually
 save_dir = os.path.join(os.getcwd(), 'pickles')
 
@@ -105,10 +101,6 @@ else:
 gmm_hmm = HMMEstimator(best_n_states, best_n_mixtures)
 gmm_hmm.fit(X_train_full, y_train_full)
 final_score, y_pred = gmm_hmm.score(X_test, y_test)
-
-print(
-    f'Final model done, (states, mixtures): ({best_n_states},{best_n_mixtures}), t:{time.time() - start_time}'
-)
 
 print(
     f'My model brings all the boys to the yard\n'
