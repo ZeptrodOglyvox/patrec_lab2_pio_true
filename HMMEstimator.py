@@ -5,7 +5,7 @@ import numpy as np
 # Read Digit Model and then HMMEstimator, most of it is copied from their hmm.py script
 
 
-# This class trains an HMM model for one digit label, 10 of these will be made
+# This class trains an HMM model for one digit, 10 of these will be made
 class DigitModel:
     def __init__(self):
         self.model = None
@@ -24,6 +24,7 @@ class DigitModel:
 
         self.model = model
 
+    # "Predict" in more of a binary classification sense
     def predict(self, X_test):
         logp, _ = self.model.viterbi(X_test)  # Run viterbi algorithm and return log-probability
         return logp
@@ -39,7 +40,7 @@ def initialize_parameters(n_states):
             trans_matrix[i][i + 1] = p
             trans_matrix[i][i] = 1 - p
         else:
-            trans_matrix[i][i] = 1  # TODO: Is this right?
+            trans_matrix[i][i] = 1
 
     starts = np.zeros(n_states)
     starts[0] = 1
@@ -78,20 +79,11 @@ class HMMEstimator:
         for sample in X_test:
             likelihoods = []
             for model in self.models:
-                likelihoods.append(
-                    model.predict(sample)
-                )
+                likelihoods.append(model.predict(sample))
 
-            y_pred.append(
-                np.argmax(likelihoods)
-            )
-
+            y_pred.append(np.argmax(likelihoods))
         return np.array(y_pred)
 
     def score(self, X_test, y_test):
         y_pred = self.predict(X_test)
-
         return np.mean(y_test == y_pred), y_pred
-
-
-
