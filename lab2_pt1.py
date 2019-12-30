@@ -28,10 +28,10 @@ else:
     y_train_full = np.load(os.path.join(save_dir, 'y_train.npy'), allow_pickle=True)
     y_test = np.load(os.path.join(save_dir, 'y_test.npy'), allow_pickle=True)
 
-X_train, y_train, X_val, y_val = train_test_split(X_train_full, y_train_full, test_size=0.2, stratify=y_train_full)
+X_train, X_val, y_train, y_val = train_test_split(X_train_full, y_train_full, test_size=0.2, stratify=y_train_full)
 
 # *** 2. Hyperparameter Optimization ***
-optimize_parameters = False  # True to do the grid-search again
+optimize_parameters = True  # True to do the grid-search again
 
 # Should we do a new stratified shuffle split for train and val sets every time?
 # Should we do k-fold cross-validation for each set of hypes?
@@ -42,7 +42,7 @@ if optimize_parameters:
             # Our own class, read it to get what's going on
             gmm_hmm = HMMEstimator(n_states, n_mixtures)
             gmm_hmm.fit(X_train, y_train)
-            score = gmm_hmm.score(X_val, y_val)
+            score, _ = gmm_hmm.score(X_val, y_val)
             scores[n_states][n_mixtures] = score
 
             print(
