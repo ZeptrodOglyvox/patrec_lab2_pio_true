@@ -1,9 +1,16 @@
+import sys
+
 import numpy as np
 from pr_lab2_2019_20_help_scripts.lab2_help.parser import parser
+from pr_lab2_2019_20_help_scripts.lab2_help.plot_confusion_matrix import plot_confusion_matrix
 from HMMEstimator import HMMEstimator
 import os
 from sklearn.model_selection import StratifiedShuffleSplit
 import csv
+import time
+from matplotlib import pyplot as plt
+
+start_time = time.time()
 
 read = False  # Change to re-read data
 data_dir = os.path.join(os.getcwd(), 'fsdd-recordings')
@@ -55,21 +62,23 @@ starts[0] = 1  # Or maybe they mean starts[1]? Does it matter?
 
 
 # *** 3. Train 10 GMM-HMM models ***
-best_n_states = 2
-best_n_mixtures = 2
-optimize_parameters = True  # True to do the grid-search again
+optimize_parameters = False  # True to do the grid-search again
 
 # Should we do a new stratified shuffle split for train and val sets every time?
 # Should we do k-fold cross-validation for each set of hypes?
 if optimize_parameters:
-    scores = np.zeros((4, 5))
+    scores = np.zeros((6, 7))
     for n_states in range(1, 5):
         for n_mixtures in range(1, 6):
             # Our own class, read it to get what's going on
             gmm_hmm = HMMEstimator(n_states, n_mixtures)
-            HMMEstimator.fit(X_train, y_train)
-            score = HMMEstimator.score(X_val, y_val)
+            gmm_hmm.fit(X_train, y_train)
+            score = gmm_hmm.score(X_val, y_val)
             scores[n_states][n_mixtures] = score
+
+            print(
+                f'Optimization, run:({n_states},{n_mixtures}), t:{time.time() - start_time}'
+            )
 
     # argmax() returns the index in the flattened array
     idx = scores.argmax()
@@ -78,8 +87,13 @@ if optimize_parameters:
     # returns the corresponding indices for an ndarray of given shape
     best_n_states, best_n_mixtures = np.unravel_index(idx, scores.shape)
 
-    with open(os.path.join(os.getcwd(), 'best_hyperparameters.txt', 'wb')) as f:
+    print(
+        f'Best run: ({best_n_states}, {best_n_mixtures})'
+    )
+
+    with open(os.path.join(os.getcwd(), 'best_hyperparameters.txt'), 'w') as f:
         f.write(f'{best_n_states}, {best_n_mixtures}\n')
+
 else:
     r = csv.reader(open(os.path.join(os.getcwd(), 'best_hyperparameters.txt')))
     best_n_states, best_n_mixtures = r.__next__()
@@ -87,9 +101,14 @@ else:
 
 
 # *** 4. Test the final model ***
+
 gmm_hmm = HMMEstimator(best_n_states, best_n_mixtures)
 gmm_hmm.fit(X_train_full, y_train_full)
-final_score = gmm_hmm.score(X_test, y_test)
+final_score, y_pred = gmm_hmm.score(X_test, y_test)
+
+print(
+    f'Final model done, (states, mixtures): ({best_n_states},{best_n_mixtures}), t:{time.time() - start_time}'
+)
 
 print(
     f'My model brings all the boys to the yard\n'
@@ -100,9 +119,18 @@ print(
 )
 
 
-def confusion_matrix(self, y_test, y_pred):
-    cf = np.zeros([y_pred.shape[0]] * 2)
-    for t, p in y_test, y_pred:
-        cf[t][p] += 1
+def plot_confusion_matrix(y_test, y_pred):
+    cm = np.zeros((10, 10))
+    for t, p in zip(y_test, y_pred):
+        cm[t][p] += 1
 
-    return cf
+    cm /= cm.max()
+    plt.imshow(cm, cmap='Blues')
+    plt.yticks(range(0, 10))
+    plt.xticks(range(0, 10))
+    plt.title('Confusion matrix')
+    plt.show()
+
+
+# Also do this for the validation set?
+plot_confusion_matrix(y_test, y_pred)

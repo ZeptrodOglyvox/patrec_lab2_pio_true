@@ -10,10 +10,10 @@ class DigitModel:
     def __init__(self):
         self.model = None
 
-    def fit(self, trans_mat, starts, X, data, n_states=2, n_mixtures=2, gmm=True, max_iterations=1000):
+    def fit(self, X, trans_mat, starts, data, n_states=2, n_mixtures=2, max_iterations=10):
         dists = []  # list of probability distributions for the HMM states
         for i in range(n_states):
-            if gmm:
+            if n_mixtures > 1:
                 a = GeneralMixtureModel.from_samples(MultivariateGaussianDistribution, n_mixtures, X)
             else:
                 a = MultivariateGaussianDistribution.from_samples(X)
@@ -64,12 +64,13 @@ class HMMEstimator:
             for i in range(1, digit_train.shape[0]):
                 X = np.concatenate((X, X_train[i]), axis=0)
 
-            # Create and optimize parameters
+            # Create and initialize parameters
             trans_matrix, starts = initialize_parameters(self.n_states)
 
             # Train model for this digit
             model = DigitModel()
-            model.fit(trans_matrix, starts, X, list(digit_train), n_states=self.n_states, n_mixtures=self.n_mixtures)
+            model.fit(X=X, trans_mat=trans_matrix, starts=starts, data=list(digit_train), n_states=self.n_states,
+                      n_mixtures=self.n_mixtures)
             self.models.append(model)
 
     def predict(self, X_test):
@@ -90,7 +91,7 @@ class HMMEstimator:
     def score(self, X_test, y_test):
         y_pred = self.predict(X_test)
 
-        return np.mean(y_test == y_pred)
+        return np.mean(y_test == y_pred), y_pred
 
 
 
